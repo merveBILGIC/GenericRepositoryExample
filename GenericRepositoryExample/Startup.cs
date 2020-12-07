@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using GenericRepositoryExample.Core.Models;
 namespace GenericRepositoryExample
 {
     public class Startup
@@ -24,10 +27,13 @@ namespace GenericRepositoryExample
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddDbContext<GenericRepoDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DevConnection"),
-                                    x => x.MigrationsAssembly("GenericRepositoryExample.Data")));
-
+               options.UseSqlServer(Configuration.GetConnectionString("GenericRepositoryExampleContextConnection")));
+            services.AddDefaultIdentity<UsersAuthor>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddEntityFrameworkStores<GenericRepoDbContext>();
+            services.AddMvc();
+        
             services.AddControllersWithViews();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +61,7 @@ namespace GenericRepositoryExample
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }
